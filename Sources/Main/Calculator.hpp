@@ -17,6 +17,7 @@ private:
 	void fillStacksFirstElement(int i, double& temp, std::string str);
 	void fillStacks(int i, double temp, std::string input);
 	void getExpressionValue();
+	void sortStacks();
 
 public:
 

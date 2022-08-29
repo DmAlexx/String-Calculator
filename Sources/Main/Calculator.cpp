@@ -36,6 +36,16 @@ void Calculator::fillStacks(int i, double temp, std::string input)
 	clearTempArray(m_input);
 }
 
+void Calculator::sortStacks()
+{
+	std::stack<char> stackOperationTemp;
+	std::stack<double> stackNumbersTemp;
+	while (!m_stackOperation.empty())
+	{
+		
+	}
+}
+
 double Calculator::calc(const std::string& input)
 {
 	double temp = 0;
