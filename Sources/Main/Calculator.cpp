@@ -44,36 +44,6 @@ double Calculator::calc(const std::string& input)
 		switch (input[i])
 		{
 		case '+':
-			if (m_stackOperation.empty())
-			{
-				fillStacksFirstElement(i, temp, input);
-				break;
-			}
-			if (m_stackOperation.top() == '-')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue - m_rightExpressionValue);
-				break;
-			}
-			if (m_stackOperation.top() == '+')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue + m_rightExpressionValue);
-				break;
-			}
-			if (m_stackOperation.top() == '/')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue / m_rightExpressionValue);
-				break;
-			}
-			if (m_stackOperation.top() == '*')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue * m_rightExpressionValue);
-				break;
-			}
-			break;
 		case '-':
 			if (m_stackOperation.empty())
 			{
@@ -94,7 +64,6 @@ double Calculator::calc(const std::string& input)
 			}
 			if (m_stackOperation.top() == '/')
 			{
-
 				fillStacks(i, temp, input);
 				m_stackNumbers.push(m_leftExpressionValue / m_rightExpressionValue);
 				break;
@@ -107,24 +76,6 @@ double Calculator::calc(const std::string& input)
 			}
 			break;
 		case '/':
-			if (m_stackOperation.empty() || m_stackOperation.top() == '-' || m_stackOperation.top() == '+')
-			{
-				fillStacksFirstElement(i, temp, input);
-				break;
-			}
-			if (m_stackOperation.top() == '/')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue / m_rightExpressionValue);
-				break;
-			}
-			if (m_stackOperation.top() == '*')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue * m_rightExpressionValue);
-				break;
-			}
-			break;
 		case '*':
 			if (m_stackOperation.empty() || m_stackOperation.top() == '-' || m_stackOperation.top() == '+')
 			{
@@ -163,7 +114,14 @@ double Calculator::calc(const std::string& input)
 			break;
 		case '-':
 			getExpressionValue();
-			m_stackNumbers.push(m_leftExpressionValue - m_rightExpressionValue);
+			if (!m_stackOperation.empty() && m_stackOperation.top() == '-')
+			{
+				m_stackNumbers.push(m_leftExpressionValue + m_rightExpressionValue);
+			}
+			else
+			{
+				m_stackNumbers.push(m_leftExpressionValue - m_rightExpressionValue);
+			}
 			break;
 		case '/':
 			getExpressionValue();
@@ -175,6 +133,5 @@ double Calculator::calc(const std::string& input)
 			break;
 		}
 	}
-	m_result = m_stackNumbers.top();
-	return m_result;
+	return m_stackNumbers.top();
 }
