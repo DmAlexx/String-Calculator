@@ -1,8 +1,42 @@
 #include "Calculator.hpp"
-#include <cmath>
-#include <functional>
 
-void Calculator::clearTempArray(char(&m_input)[20])
+double Calculator::calc(const std::string& str)
+{
+	separateNumbersFromSign(str);
+	calculate();
+	return m_result;
+}
+
+void Calculator::separateNumbersFromSign(const std::string& str)
+{
+	double temp = 0;
+	for (int i = 0; i < str.length(); ++i)
+	{
+		switch (str[i])
+		{
+		case '+':
+		case '-':
+		case '/':
+		case '*':
+			m_operation.push_back(str[i]);
+			m_numbers.push_back(temp);
+			temp = 0;
+			clearTempArray();
+			break;
+		case '(':
+		case ')':
+			m_operation.push_back(str[i]);
+			clearTempArray();
+			break;
+		default:
+			m_input[i] = str[i];
+			temp = atof(m_input);
+		}
+	}
+	m_numbers.push_back(temp);
+}
+
+void Calculator::clearTempArray()
 {
 	for (int i = 0; i < 20; ++i)
 	{
@@ -10,128 +44,128 @@ void Calculator::clearTempArray(char(&m_input)[20])
 	}
 }
 
-void Calculator::fillStacksFirstElement(int i, double& temp, std::string input)
+void Calculator::eraseValueAndSign(int i)
 {
-	m_stackOperation.push(input[i]);
-	m_stackNumbers.push(temp);
-	temp = 0;
-	clearTempArray(m_input);
+	m_numbers.erase(m_numbers.begin() + i);
+	m_operation.erase(m_operation.begin() + i);
 }
 
-void Calculator::getExpressionValue()
+void Calculator::calculate()
 {
-	m_rightExpressionValue = m_stackNumbers.top();
-	m_stackNumbers.pop();
-	m_leftExpressionValue = m_stackNumbers.top();
-	m_stackNumbers.pop();
-	m_stackOperation.pop();
-}
-
-void Calculator::fillStacks(int i, double temp, std::string input)
-{
-	m_stackNumbers.push(temp);
-	getExpressionValue();
-	m_stackOperation.push(input[i]);
-	temp = 0;
-	clearTempArray(m_input);
-}
-
-double Calculator::calc(const std::string& input)
-{
-	double temp = 0;
-	for (int i = 0; i < input.length(); ++i)
+	int i = 0;
+	while (!m_operation.empty())
 	{
-		switch (input[i])
+		switch (m_operation[i])
 		{
-		case '+':
-		case '-':
-			if (m_stackOperation.empty())
+		case'-':
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '*' || i + 1 < m_operation.size() && m_operation[i + 1] == '/')
 			{
-				fillStacksFirstElement(i, temp, input);
+				++i;
 				break;
 			}
-			if (m_stackOperation.top() == '-')
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '(')
 			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue - m_rightExpressionValue);
+				++i;
 				break;
 			}
-			if (m_stackOperation.top() == '+')
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == ')')
 			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue + m_rightExpressionValue);
+				m_numbers[i + 1] = m_numbers[i] - m_numbers[i + 1];
+				eraseValueAndSign(i);
 				break;
-			}
-			if (m_stackOperation.top() == '/')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue / m_rightExpressionValue);
-				break;
-			}
-			if (m_stackOperation.top() == '*')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue * m_rightExpressionValue);
-				break;
-			}
-			break;
-		case '/':
-		case '*':
-			if (m_stackOperation.empty() || m_stackOperation.top() == '-' || m_stackOperation.top() == '+')
-			{
-				fillStacksFirstElement(i, temp, input);
-				break;
-			}
-			if (m_stackOperation.top() == '/')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue / m_rightExpressionValue);
-				break;
-			}
-			if (m_stackOperation.top() == '*')
-			{
-				fillStacks(i, temp, input);
-				m_stackNumbers.push(m_leftExpressionValue * m_rightExpressionValue);
-				break;
-			}
-			break;
-		default:
-			m_input[i] = input[i];
-			temp = atof(m_input);
-		}
-	}
-
-	temp = atof(m_input);
-	m_stackNumbers.push(temp);
-
-	while (!m_stackOperation.empty())
-	{
-		switch (m_stackOperation.top())
-		{
-		case '+':
-			getExpressionValue();
-			m_stackNumbers.push(m_leftExpressionValue + m_rightExpressionValue);
-			break;
-		case '-':
-			getExpressionValue();
-			if (!m_stackOperation.empty() && m_stackOperation.top() == '-')
-			{
-				m_stackNumbers.push(m_leftExpressionValue + m_rightExpressionValue);
 			}
 			else
 			{
-				m_stackNumbers.push(m_leftExpressionValue - m_rightExpressionValue);
+				m_numbers[i + 1] = m_numbers[i] - m_numbers[i + 1];
+				eraseValueAndSign(i);
+				if (i > 0)
+				{
+					--i;
+				}
 			}
 			break;
-		case '/':
-			getExpressionValue();
-			m_stackNumbers.push(m_leftExpressionValue / m_rightExpressionValue);
+
+		case'+':
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '*' || i + 1 < m_operation.size() && m_operation[i + 1] == '/')
+			{
+				++i;
+				break;
+			}
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '(')
+			{
+				++i;
+				break;
+			}
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == ')')
+			{
+				m_numbers[i + 1] = m_numbers[i] + m_numbers[i + 1];
+				eraseValueAndSign(i);
+				break;
+			}
+			else
+			{
+				m_numbers[i + 1] = m_numbers[i] + m_numbers[i + 1];
+				eraseValueAndSign(i);
+				if (i > 0)
+				{
+					--i;
+				}
+			}
 			break;
-		case '*':
-			getExpressionValue();
-			m_stackNumbers.push(m_leftExpressionValue * m_rightExpressionValue);
+
+		case'*':
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '(')
+			{
+				++i;
+				break;
+			}
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == ')')
+			{
+				m_numbers[i + 1] = m_numbers[i] * m_numbers[i + 1];
+				eraseValueAndSign(i);
+				break;
+			}
+			else
+			{
+				m_numbers[i + 1] = m_numbers[i] * m_numbers[i + 1];
+				eraseValueAndSign(i);
+				if (i > 0)
+				{
+					--i;
+				}
+			}
 			break;
+
+		case'/':
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '(')
+			{
+				++i;
+				break;
+			}
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == ')')
+			{
+				m_numbers[i + 1] = m_numbers[i] / m_numbers[i + 1];
+				eraseValueAndSign(i);
+				break;
+			}
+			else
+			{
+				m_numbers[i + 1] = m_numbers[i] / m_numbers[i + 1];
+				eraseValueAndSign(i);
+				if (i > 0)
+				{
+					--i;
+				}
+			}
+			break;
+		
+		case '(':
+			m_operation.erase(m_operation.begin() + i);
+			break;
+		case ')':
+			m_operation.erase(m_operation.begin() + i);
+			--i;
 		}
 	}
-	return m_stackNumbers.top();
+	m_result = m_numbers[0];
 }
