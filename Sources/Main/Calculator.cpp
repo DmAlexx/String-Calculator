@@ -75,30 +75,37 @@ void Calculator::calculate()
 	int i = 0;
 	while (!m_operation.empty())
 	{
-			if (i + 1 < m_operation.size() && m_operation[i + 1] == '*' || i + 1 < m_operation.size() && m_operation[i + 1] == '/')
+		if (i + 1 < m_operation.size() && m_operation[i + 1] == '*' || i + 1 < m_operation.size() && m_operation[i + 1] == '/')
+		{
+			++i;
+		} 
+		if (i + 1 < m_operation.size() && m_operation[i + 1] == ')')
+		{
+			m_operation.erase(m_operation.begin() + i + 1);
+		}
+		if (i + 1 < m_operation.size() && m_operation[i + 1] == '(' || m_operation[i] == '(')
+		{
+			if (m_operation[i] == '(')
 			{
-				++i;
-			} 
-			if (i + 1 < m_operation.size() && m_operation[i + 1] == ')')
-			{
-				m_operation.erase(m_operation.begin() + i + 1);
-			}
-			if (i + 1 < m_operation.size() && m_operation[i + 1] == '(')
-			{
-				m_operation.erase(m_operation.begin() + i + 1);
-				++i;
-				operation(i);
-				eraseValueAndSign(i);
+				m_operation.erase(m_operation.begin());
 			}
 			else
 			{
+				m_operation.erase(m_operation.begin() + i + 1);
+				++i;
 				operation(i);
 				eraseValueAndSign(i);
-				if (i > 0)
-				{
-					--i;
-				}
 			}
+		}
+		else
+		{
+			operation(i);
+			eraseValueAndSign(i);
+			if (i > 0)
+			{
+				--i;
+			}
+		}
 	}
 	m_result = m_numbers[0];
 }
