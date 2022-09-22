@@ -8,9 +8,7 @@ class Calculator
 {
 private:
 
-	char m_input[20] = { 0 };
-	double m_rightExpressionValue = 0;
-	double m_leftExpressionValue = 0;
+	char m_input[128] = { 0 };
 	double m_result;
 	std::vector<char> m_operation;
 	std::vector<double> m_numbers;
@@ -18,7 +16,8 @@ private:
 	void clearTempArray();
 	void calculate();
 	void eraseValueAndSign(int i);
-		
+	void operation(int i);
+
 public:
 
 	Calculator() = default;
