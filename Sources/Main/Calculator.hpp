@@ -8,7 +8,7 @@ class Calculator
 {
 private:
 
-	char m_input[128] = { 0 };
+	char m_input[256] = { 0 };
 	double m_result;
 	std::vector<char> m_operation;
 	std::vector<double> m_numbers;

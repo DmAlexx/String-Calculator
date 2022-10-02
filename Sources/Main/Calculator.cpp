@@ -7,6 +7,8 @@ double Calculator::calc(const std::string& str)
 	return m_result;
 }
 
+//Function that parsing string to signs and numbers
+//Place signs and numbers to vectors
 void Calculator::separateNumbersFromSign(const std::string& str)
 {
 	double temp = 0;
@@ -50,6 +52,7 @@ void Calculator::eraseValueAndSign(int i)
 	m_operation.erase(m_operation.begin() + i);
 }
 
+//Arithmetical operations with numbers
 void Calculator::operation(int i)
 {
 	if (m_operation[i] == '-')
@@ -70,40 +73,52 @@ void Calculator::operation(int i)
 	}
 }
 
+//Logic, priority of operation
 void Calculator::calculate()
 {
 	int i = 0;
 	while (!m_operation.empty())
 	{
-		if (i + 1 < m_operation.size() && m_operation[i + 1] == '*' || i + 1 < m_operation.size() && m_operation[i + 1] == '/')
+		switch (m_operation[i])
 		{
-			++i;
-		} 
-		if (i + 1 < m_operation.size() && m_operation[i + 1] == ')')
-		{
-			m_operation.erase(m_operation.begin() + i + 1);
-		}
-		if (i + 1 < m_operation.size() && m_operation[i + 1] == '(' || m_operation[i] == '(')
-		{
-			if (m_operation[i] == '(')
+		case '(':
+		case ')':
+			m_operation.erase(m_operation.begin() + i);
+			break;
+		case '*':
+		case '/':
+			
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '(')
 			{
-				m_operation.erase(m_operation.begin());
+				++i;
+				break;
 			}
 			else
 			{
-				m_operation.erase(m_operation.begin() + i + 1);
-				++i;
 				operation(i);
 				eraseValueAndSign(i);
+				if (i > 0)
+				{
+					--i;
+				}
+				break;
 			}
-		}
-		else
-		{
-			operation(i);
-			eraseValueAndSign(i);
-			if (i > 0)
+		case '-':
+		case '+':
+			if (i + 1 < m_operation.size() && m_operation[i + 1] == '*' || i + 1 < m_operation.size() && m_operation[i + 1] == '/')
 			{
-				--i;
+				++i;
+				break;
+			}
+			else
+			{
+				operation(i);
+				eraseValueAndSign(i);
+				if (i > 0 && i + 1 < m_operation.size() && m_operation[i + 1] != ')')
+				{
+					--i;
+				}
+				break;
 			}
 		}
 	}
